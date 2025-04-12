@@ -50,7 +50,7 @@ If you don’t want to set up a local MySQL database, you can directly connect t
 
 Download and install MySQL (Community version) from the official website:
 
-🔗 https://dev.mysql.com/downloads/mysql/
+🔗 [https://dev.mysql.com/downloads/mysql/](https://dev.mysql.com/downloads/installer/)
 
 During installation:
 - You can skip MySQL Server and **only select MySQL Client / Command Line Client**.
