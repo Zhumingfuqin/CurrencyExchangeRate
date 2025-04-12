@@ -38,25 +38,88 @@ This application is a Java-based currency exchange rate viewer that fetches real
 
 ---
 
-## 🔧 How to Run (for teammates)
+---
 
-Any teammate can run the full system on their own environment by following these steps:
+### 🌐 Optional: Connect to AWS RDS (Skip Local Setup)
 
-1. **Install Java 8+ and MySQL** (e.g., via XAMPP or native installation)
-2. **Create the database:**
+If you don’t want to set up a local MySQL database, you can directly connect to the team-hosted AWS RDS instance using a MySQL client. This is ideal if you just want to run and test the application without configuring MySQL locally.
 
-```sql
-CREATE DATABASE currency_db;
-USE currency_db;
-CREATE TABLE exchange_rates (
-  currency_code VARCHAR(1000),
-  rate DOUBLE,
-  timestamp VARCHAR(50)
-);
+#### ✅ Step 1: Download MySQL Client
 
-// Local MySQL setup
-String url = "jdbc:mysql://localhost:3306/currency_db";
-String username = "your_username";
-String password = "your_password";
+**Windows:**
+
+Download and install MySQL (Community version) from the official website:
+
+🔗 https://dev.mysql.com/downloads/mysql/
+
+During installation:
+- You can skip MySQL Server and **only select MySQL Client / Command Line Client**.
+- After installation, open **"MySQL Command Line Client"** or **Command Prompt / PowerShell**.
+
+**macOS (for reference):**
+
+brew install mysql-client  
+echo 'export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"' >> ~/.zprofile  
+source ~/.zprofile  
+echo 'export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"' >> ~/.zshrc  
+source ~/.zshrc  
+
+To check if the correct client is in use:
+
+which mysql  
+mysql --version  
+
+#### 📡 Step 2: Connect to the AWS RDS database
+
+In your terminal or command prompt, enter the following command:
+
+mysql -h currency-db.cs5y8w8isga2.us-east-1.rds.amazonaws.com -u currency_user -p
+
+When prompted, enter the password:
+
+yizhimodouli
+
+If successful, you'll enter the MySQL CLI prompt (mysql>), meaning you're connected to the remote database.
+
+#### 📊 Step 3: Verify Connection with SQL
+
+After connecting, you can test the connection using the following SQL commands:
+
+USE currency_db;  
+SHOW TABLES;  
+SELECT COUNT(*) FROM exchange_rates;  
+SELECT * FROM exchange_rates LIMIT 5;  
+
+#### ⚠️ Step 4: Notes & Guidelines
+
+✅ This is a standard MySQL server hosted on AWS RDS  
+✅ All SQL syntax and tools are the same as local MySQL  
+🧪 The exchange_rates table is preloaded with ~976 records  
+❗ Please do not modify or delete data unless you are testing insert/update logic  
+❌ You do not need to SSH into EC2 or install Docker  
+
+#### 🛠️ Step 5: macOS Compatibility Fix (Optional)
+
+If you see the following error when using mysql on macOS:
+
+ERROR 2059 (HY000): Authentication plugin 'mysql_native_password' cannot be loaded
+
+This is caused by using MySQL 9.x+, which dropped support for mysql_native_password.
+
+✅ To fix it:
+
+brew uninstall mysql  
+brew install mysql-client  
+echo 'export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"' >> ~/.zprofile  
+source ~/.zprofile  
+
+Or bypass the issue without uninstalling:
+
+/opt/homebrew/opt/mysql-client/bin/mysql -h currency-db.cs5y8w8isga2.us-east-1.rds.amazonaws.com -u currency_user -p
+
+
+
+
+
 
 
