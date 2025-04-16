@@ -12,10 +12,22 @@ public class DatabaseConnector {
     private static final String USER = "currency_user";
     private static final String PASSWORD = "yizhimodouli";
 
+    /**
+     * Returns a connection to the local MySQL database.
+     *
+     * @return a Connection object for interacting with the local database
+     * @throws SQLException if a database access error occurs
+     */
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL,USER,PASSWORD);
     }
 
+    /**
+     * Returns a connection to the AWS RDS MySQL instance.
+     *
+     * @return a Connection object for interacting with the AWS RDS database
+     * @throws SQLException if a database access error occurs
+     */
     public static Connection getAWSConnection() throws SQLException {
         return DriverManager.getConnection(AWS_URL,USER,PASSWORD);
     }

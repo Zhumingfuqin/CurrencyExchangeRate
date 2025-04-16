@@ -20,6 +20,12 @@ public class Main {
     private static final String API_URL = "https://api.currencyfreaks.com/v2.0/supported-currencies?apikey=" + API_KEY;
     private static final String LATEST_RATES_URL = "https://api.currencyfreaks.com/v2.0/rates/latest?apikey=" + API_KEY;
 
+    /**
+     * Fetches the list of supported currencies from the external API.
+     *
+     * @return a list of CurrencyInfo objects representing supported currencies
+     */
+
     public static List<CurrencyInfo> fetchSupportedCurrencies() {
         //test api call
         System.out.println("Starting API call to fetch data...");
@@ -50,7 +56,6 @@ public class Main {
             }
 
 
-            // 解析 rates 部分
             Type mapType = new TypeToken<Map<String, CurrencyInfo>>() {}.getType();
             Map<String, CurrencyInfo> parsedMap = gson.fromJson(supportedMap, mapType);
 
@@ -64,7 +69,9 @@ public class Main {
     }
 
     /**
-     * Step 2: Fetch the "latest rates" -> Map<Currency Code, Rate Value>
+     * Fetches the latest exchange rates from the API.
+     *
+     * @return a map where the keys are currency codes and the values are their respective exchange rates
      */
     public static Map<String, Double> fetchLatestRates() {
         // test
@@ -107,11 +114,25 @@ public class Main {
         return rateMap;
     }
 
+    /**
+     * Main entry point for the program, where data is fetched, merged, and inserted into both local and AWS databases.
+     */
     public static void main(String[] args) {
         // Fetch currency data/info
         List<CurrencyInfo> currencies = fetchSupportedCurrencies();
         // Get latest rates
         Map<String, Double> ratesMap = fetchLatestRates();
+
+        // Merge - populate the rates from ratesMap into the currency list
+        for (CurrencyInfo info : currencies) {
+            Double rate = ratesMap.get(info.getCurrencyCode());
+            if (rate != null) {
+                info.setExchangeRate(rate);
+            } else {
+                // If no corresponding rate, set to 0.0 (or keep null)
+                info.setExchangeRate(0.0);
+            }
+        }
 
         // Insert into AWS
         try (Connection awsConn = DatabaseConnector.getAWSConnection()) {
@@ -130,29 +151,6 @@ public class Main {
             System.err.println("❌ Local database operation failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
-
-        // Merge - populate the rates from ratesMap into the currency list
-        for (CurrencyInfo info : currencies) {
-            Double rate = ratesMap.get(info.getCurrencyCode());
-            if (rate != null) {
-                info.setExchangeRate(rate);
-            } else {
-                // If no corresponding rate, set to 0.0 (or keep null)
-                info.setExchangeRate(0.0);
-            }
-        }
-
-        // Step 4: 存入数据库
-        // 这里你可以直接调用你写的 CurrencyDataUpdater.saveCurrencyRates(...) 或者极简版
-        /*
-        if (!currencies.isEmpty()) {
-            CurrencyDataUpdater.saveCurrencyRates(currencies);
-            System.out.println("✅ 数据已存入数据库，表里有完整的元信息 + 汇率！");
-        } else {
-            System.out.println("❌ infoList 为空，无法存储！");
-        }
-
-         */
 
         // Start the GUI on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
